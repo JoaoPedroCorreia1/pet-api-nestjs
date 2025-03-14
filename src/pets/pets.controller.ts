@@ -2,44 +2,53 @@ import {
   Controller,
   Get,
   Post,
-  Put,
-  Delete,
   Body,
+  Patch,
   Param,
+  Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
-import { CreatePetDto } from './dto/create-pet.dto';
-import { Pet } from './interfaces/pet.interface';
 import { PetsService } from './pets.service';
+import { CreatePetDto } from './dto/create-pet.dto';
+import { UpdatePetDto } from './dto/update-pet.dto';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { PetEntity } from './entities/pet.entity';
 
 @Controller('pets')
+@ApiTags('pets')
 export class PetsController {
-  constructor(private readonly PetsService: PetsService) { }
+  constructor(private readonly petsService: PetsService) {}
 
   @Get()
-  findAll(): Promise<Pet[]> {
-    return this.PetsService.findAll();
+  @ApiOkResponse({ type: PetEntity, isArray: true })
+  findAll() {
+    return this.petsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Pet | null> {
-    return this.PetsService.findOne(id);
+  @ApiOkResponse({ type: PetEntity })
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.petsService.findOne(id);
   }
 
   @Post()
-  create(@Body() createPetDto: CreatePetDto): Promise<Pet> {
-    return this.PetsService.create(createPetDto);
+  @ApiCreatedResponse({ type: PetEntity })
+  create(@Body() createPetDto: CreatePetDto) {
+    return this.petsService.create(createPetDto);
+  }
+
+  @Patch(':id')
+  @ApiCreatedResponse({ type: PetEntity })
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updatePetDto: UpdatePetDto,
+  ) {
+    return this.petsService.update(id, updatePetDto);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string): Promise<Pet | null> {
-    return this.PetsService.delete(id);
-  }
-
-  @Put(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updatePetDto: CreatePetDto,
-  ): Promise<Pet | null> {
-    return this.PetsService.update(id, updatePetDto);
+  @ApiOkResponse({ type: PetEntity })
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.petsService.remove(id);
   }
 }

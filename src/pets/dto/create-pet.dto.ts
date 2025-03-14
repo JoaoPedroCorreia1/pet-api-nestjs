@@ -1,5 +1,25 @@
+// src/articles/dto/create-article.dto.ts
+
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
+
 export class CreatePetDto {
-  readonly name: string;
-  readonly type: string;
-  readonly description: string;
+  
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  type: string;
+
+  @IsString()
+  @IsOptional()
+  @IsNotEmpty()
+  @MaxLength(300)
+  @ApiProperty({ required: false })
+  description?: string;
+
 }

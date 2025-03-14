@@ -1,36 +1,32 @@
-import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Pet } from './interfaces/pet.interface';
-import { PetClass } from './schemas/pet.schema';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreatePetDto } from './dto/create-pet.dto';
+import { UpdatePetDto } from './dto/update-pet.dto';
 
 @Injectable()
 export class PetsService {
-  constructor(
-    @InjectModel(PetClass.name)
-    private PetModel: Model<PetClass>,
-  ) { }
+  constructor(private prisma: PrismaService) {}
 
-  async findAll(): Promise<Pet[]> {
-    return await this.PetModel.find().exec();
+  create(createPetDto: CreatePetDto) {
+    return this.prisma.pet.create({ data: createPetDto });
   }
 
-  async findOne(id: string): Promise<Pet | null> {
-    return await this.PetModel.findOne({ _id: id });
+  findAll() {
+    return this.prisma.pet.findMany();
   }
 
-  async create(Pet: Pet): Promise<Pet> {
-    const newPet = new this.PetModel(Pet);
-    return await newPet.save();
+  findOne(id: number) {
+    return this.prisma.pet.findUnique({ where: { id } });
   }
 
-  async delete(id: string): Promise<Pet | null> {
-    return await this.PetModel.findByIdAndDelete(id);
-  }
-
-  async update(id: string, Pet: Pet): Promise<Pet | null> {
-    return await this.PetModel.findByIdAndUpdate(id, Pet, {
-      new: true,
+  update(id: number, updatePetDto: UpdatePetDto) {
+    return this.prisma.pet.update({
+      where: { id },
+      data: updatePetDto,
     });
+  }
+
+  remove(id: number) {
+    return this.prisma.pet.delete({ where: { id } });
   }
 }
