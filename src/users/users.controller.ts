@@ -19,7 +19,6 @@ import { UserEntity } from './entities/user.entitiy';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  
   @Get()
   @ApiOkResponse({ type: UserEntity, isArray: true })
   async getAll() {
